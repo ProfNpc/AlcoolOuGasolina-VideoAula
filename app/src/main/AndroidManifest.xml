@@ -9,6 +9,21 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".SobreActivity"
+            android:parentActivityName=".ConfiguracaoActivity"
+            android:label="Sobre o App">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.belval.alcoolougasolina.ConfiguracaoActivity" />
+        </activity>
+        <activity
+            android:name=".ConfiguracaoActivity"
+            android:label="Configurações"
+            android:parentActivityName=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.belval.alcoolougasolina.MainActivity" />
+        </activity>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
