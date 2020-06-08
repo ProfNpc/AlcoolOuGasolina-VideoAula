@@ -139,7 +139,7 @@ public class ConfiguracaoActivity extends AppCompatActivity {
         private void addProporcaoPref(Context context, PreferenceScreen screen) {
             SeekBarPreference proporcaoPref = new SeekBarPreference(context);
             proporcaoPref.setKey("proporcaoAlcoolGasolina");
-            proporcaoPref.setTitle("Proporção Alcool/Gasolina");
+            proporcaoPref.setTitle("Proporção Álcool/Gasolina");
             //Define o valor máximo possível
             proporcaoPref.setMax(100);
             //Define o valor mínimo possível
