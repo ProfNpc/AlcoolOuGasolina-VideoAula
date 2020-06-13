@@ -1,14 +1,21 @@
 package com.belval.alcoolougasolina;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.fragment.app.DialogFragment;
 
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Gravity;
+import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -30,6 +37,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        LoginMsg.newInstance().show(getSupportFragmentManager(), "login");
+
         setContentView(R.layout.activity_main);
 
         this.prefs = new PrefsUtil(MainActivity.this);
@@ -156,12 +166,16 @@ public class MainActivity extends AppCompatActivity {
                 abrirConfiguracoes();
                 return true;
             case MENU_SAIR:
-                //Encerra a aplicação
-                MainActivity.this.finishAndRemoveTask();
-                System.exit(0);
+                closeActivity();
             default:
                 return false;
         }
+    }
+
+    private void closeActivity() {
+        //Encerra a aplicação
+        MainActivity.this.finishAndRemoveTask();
+        System.exit(0);
     }
 
     /**
@@ -170,5 +184,76 @@ public class MainActivity extends AppCompatActivity {
     private void abrirConfiguracoes() {
         Intent it = new Intent(MainActivity.this, ConfiguracaoActivity.class);
         startActivity(it);
+    }
+
+    public static class LoginMsg extends DialogFragment {
+        public static LoginMsg newInstance() {
+            return new LoginMsg();
+        }
+
+        @NonNull
+        @Override
+        public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
+            //Na pratica define que a caixa de dialogo sera modal
+            setCancelable(false);
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            //obtem o inflater
+            LayoutInflater inflater = requireActivity().getLayoutInflater();
+
+            //"Infla" a view dialog_senha
+            View view = inflater.inflate(R.layout.dialog_senha, null);
+            //recupera os campos da view para usar
+            //eles precisam ser marcados como "final" para serem usados
+            //dentro das classes anomimas criadas abaixo
+            final EditText loginUser = view.findViewById(R.id.loginUser);
+            final EditText loginPass = view.findViewById(R.id.loginPass);
+            final TextView errorMsg = view.findViewById(R.id.errorMsg);
+
+            //Infla o layout e passa para o nbuilder
+            builder.setView(view)
+                    //Nao adiciona o botao entrar aqui
+                    .setPositiveButton("Entrar",null)
+                    .setNegativeButton("Sair", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            //Encerra a aplicação
+                            ((MainActivity)getActivity()).closeActivity();
+                        }
+                    });
+            final AlertDialog alert = builder.create();
+            //Para que a caixa de dialogo nao feche ao clicar no positive button
+            //se faz necessario substituir o listener do botão depois
+            //que a tela eh apresentada
+            alert.setOnShowListener(new DialogInterface.OnShowListener() {
+                @Override
+                public void onShow(DialogInterface dialog) {
+                    Button btn = ((AlertDialog)dialog)
+                            .getButton(AlertDialog.BUTTON_POSITIVE);
+                    btn.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            //verifica usuario e senha
+                            if (loginUser.getText().toString().equals("ze") &&
+                                    loginPass.getText().toString().equals("123456")) {
+                                //dismiss fecha a caixa de dialogo
+                                alert.dismiss();
+                            } else {
+                                errorMsg.setText("Usuário ou senha inválido");
+                            }
+                        }
+                    });
+                }
+            });
+            //Qualquer tecla pressionada limpa a mensagem de erro
+            alert.setOnKeyListener(new DialogInterface.OnKeyListener() {
+                @Override
+                public boolean onKey(DialogInterface dialog,
+                                     int keyCode, KeyEvent event) {
+                    errorMsg.setText("");
+                    return false;
+                }
+            });
+            return alert;
+        }
     }
 }
